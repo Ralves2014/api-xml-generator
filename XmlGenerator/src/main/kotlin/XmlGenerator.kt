@@ -3,20 +3,39 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
 
+/**
+ * Annotation for specifying a transformer class to convert an integer to a string.
+ *
+ * @property value The class of the transformer to be used.
+ */
 @Target(AnnotationTarget.PROPERTY)
 annotation class XmlString(val value: KClass<out StringTransformer>)
 
+/**
+ * Annotation for specifying an adapter class to adapt an XML tag.
+ *
+ * @property value The class of the adapter to be used.
+ */
 @Target(AnnotationTarget.CLASS)
 annotation class XmlAdapter(val value: KClass<out XmlAdaptable>)
 
+/**
+ * Interface for classes that adapt an XML tag.
+ */
 interface XmlAdaptable {
     fun adapt(tag: Tag)
 }
 
+/**
+ * Interface for classes that transform an integer into a string.
+ */
 interface StringTransformer {
     fun transform(input: Int): String
 }
 
+/**
+ * Implementation of `StringTransformer` that adds a percentage symbol to the integer.
+ */
 class AddPercentage : StringTransformer {
     override fun transform(input: Int): String {
         return "$input%"
@@ -175,7 +194,7 @@ class XmlGenerator {
     /**
      * Adds a global attribute to all tags with a specific name in the XML structure.
      *
-     * @param xmlContent Xml content where the changes will be applied
+     * @param xmlContent Xml content where the changes will be applied.
      * @param tagName The name of the tag to which the attribute will be added.
      * @param attributeName The name of the attribute to be added.
      * @param value The value of the attribute to be added.
@@ -199,7 +218,7 @@ class XmlGenerator {
     /**
      * Renames a tag in the XML structure.
      *
-     * @param xmlContent Xml content where the changes will be applied
+     * @param xmlContent Xml content where the changes will be applied.
      * @param tagName The name of the tag to be renamed.
      * @param newTagName The new desired name for the tag.
      * @throws IllegalArgumentException If no tag with the specified name is found in the XML structure.
@@ -222,7 +241,7 @@ class XmlGenerator {
     /**
      * Renames an attribute in a specific tag in the XML structure.
      *
-     * @param xmlContent Xml content where the changes will be applied
+     * @param xmlContent Xml content where the changes will be applied.
      * @param tagName The name of the tag where the attribute is located.
      * @param attributeName The name of the attribute to be renamed.
      * @param newAttributeName The new desired name for the attribute.
@@ -249,6 +268,70 @@ class XmlGenerator {
             throw IllegalArgumentException("The tag '$tagName' was not found.")
         }
     }
+
+    /**
+     * Removes all occurrences of a specified tag and its descendants from the XML structure.
+     *
+     * @param xmlContent Xml content where the changes will be applied.
+     * @param tagName The name of the tag to be removed.
+     * @throws IllegalArgumentException If the specified tag is not found.
+     */
+    fun removeTagDocument(xmlContent: Tag, tagName: String) {
+        var tagFound = false
+
+        xmlContent.accept { tag ->
+            val childrenToRemove = mutableListOf<Tag>()
+            for (c in tag.children) {
+                if (c.name == tagName) {
+                    childrenToRemove.addAll(c.children)
+                    childrenToRemove.add(c)
+                    tagFound = true
+                }
+            }
+
+            childrenToRemove.forEach { child ->
+                tag.removeChild(child)
+            }
+            true
+        }
+        if (!tagFound) {
+            throw IllegalArgumentException("The tag '$tagName' was not found.")
+        }
+    }
+
+    /**
+     * Removes an attribute from all occurrences of a specified tag in the XML structure.
+     *
+     * @param xmlContent Xml content where the changes will be applied.
+     * @param tagName The name of the tag where the attribute is located.
+     * @param attributeName The name of the attribute to be removed.
+     * @throws IllegalArgumentException If the specified tag is not found, or if the specified attribute does not exist in the tag.
+     */
+    fun removeAttributeGlobal(xmlContent: Tag, tagName: String, attributeName: String) {
+        var tagFound = false
+        var attributeFound = false
+
+        xmlContent.accept { tag ->
+            if (tag.name == tagName) {
+                tagFound = true
+                if (tag.attributes.containsKey(attributeName)){
+                    tag.attributes.remove(attributeName)
+                    attributeFound = true
+                }
+            }
+            true
+        }
+
+        if (!tagFound) {
+            throw IllegalArgumentException("The tag '$tagName' was not found.")
+        }
+
+        if (!attributeFound) {
+            throw IllegalArgumentException("The attribute '$attributeName' was not found in the tag '$tagName'.")
+        }
+    }
+
+    
 }
 
 fun main() {

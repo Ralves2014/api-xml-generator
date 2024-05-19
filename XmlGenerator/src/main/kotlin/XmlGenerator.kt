@@ -331,7 +331,36 @@ class XmlGenerator {
         }
     }
 
+    /**
+     * Performs a simplified XPath search in an XML structure, starting from a given path.
+     *
+     * @param xmlContent Xml content to be used.
+     * @param xpath The XPath path to be followed in the search.
+     * @throws IllegalArgumentException If the specified path is not found in the XML file.
+     */
+    fun microXPath(xmlContent: Tag, xpath: String): List<Tag> {
+        val path = xpath.split("/")
+        val tags: MutableList<Tag> = mutableListOf()
+        var depth = 0
+        var pathFound = false
 
+        xmlContent.accept { tag ->
+            if (tag.name == path[depth] && depth < path.size - 1) {
+                depth++
+            }
+            else if (tag.name == path.last() && depth == path.size - 1) {
+                pathFound = true
+                tags.add(tag)
+            }
+            true
+        }
+
+        if (!pathFound) {
+            throw IllegalArgumentException("The path '$xpath' was not found in the XML content.")
+        }
+
+        return tags
+    }
 }
 
 fun main() {
@@ -347,6 +376,8 @@ fun main() {
     )
     val xml = xmlGenerator.translate(fuc)
     println(xml.prettyPrint())
+
+    val m = xmlGenerator.microXPath(xml, "fuc/componente")
 
     val c = ComponenteAvaliacao("Quizzes", 20)
     val xml2 = xmlGenerator.translate(c)

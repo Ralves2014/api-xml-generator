@@ -130,4 +130,54 @@ class TagTest {
         }
         assertEquals("plano/curso/fuc/nome/ects/avaliacao/componente/componente/", str.toString())
     }
+
+    @Test
+    fun testValidateTagName() {
+        val plano = Tag("plano")
+        plano.validateTagName()
+
+        assertThrows<IllegalArgumentException> {
+            val invalidTag = Tag("123_invalid_tag")
+            invalidTag.validateTagName()
+        }
+
+        assertThrows<IllegalArgumentException> {
+            val invalidTag2 = Tag("invalid<name")
+            invalidTag2.validateTagName()
+        }
+
+        assertThrows<IllegalArgumentException> {
+            val invalidTag3 = Tag("xmlInvalidTag")
+            invalidTag3.validateTagName()
+        }
+    }
+
+    @Test
+    fun testValidateAttributeName() {
+        val componente = Tag("componente")
+        componente.addAttribute("nome", "Quizzes")
+
+        componente.validateAttributeName("nome")
+
+        assertThrows<IllegalArgumentException> {
+            val componente2 = Tag("componente")
+            componente2.addAttribute("123invalidAttr", "Quizzes")
+
+            componente2.validateAttributeName("123invalidAttr")
+        }
+
+        assertThrows<IllegalArgumentException> {
+            val componente3 = Tag("componente")
+            componente3.addAttribute("invalid Attr", "Quizzes")
+
+            componente3.validateAttributeName("invalid Attr")
+        }
+
+        assertThrows<IllegalArgumentException> {
+            val componente4 = Tag("componente")
+            componente4.addAttribute("inva@lidAttr", "Quizzes")
+
+            componente4.validateAttributeName("inva@lidAttr")
+        }
+    }
 }

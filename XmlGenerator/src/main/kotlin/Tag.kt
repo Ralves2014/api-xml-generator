@@ -11,20 +11,23 @@ class Tag(var name: String) {
     val children: MutableList<Tag> = mutableListOf()
     var text: StringBuilder = StringBuilder()
 
+    /**
+     * Initializes a new instance of the Tag class.
+     * It validates the name of the tag to ensure it conforms to XML naming conventions.
+     */
     init {
-        validateTagName(name)
+        this.validateTagName()
     }
 
     /**
      * Validates the name of an XML tag.
      *
-     * @param name The name of the tag to validate.
      * @throws IllegalArgumentException if the tag name is invalid. The tag name must start with a letter or underscore, and cannot start with 'xml'.
      */
-    private fun validateTagName(name: String) {
+    fun validateTagName() {
         val regex = Regex("^[A-Za-z_][\\w\\-.]*$")
-        if (!regex.matches(name) || name.startsWith("xml", ignoreCase = true)) {
-            throw IllegalArgumentException("Invalid attribute name: '$name'. Attribute names must start with a letter or underscore, and cannot start with 'xml'.")
+        if (!regex.matches(this.name) || this.name.startsWith("xml", ignoreCase = true)) {
+            throw IllegalArgumentException("Invalid tag name: '${this.name}'. Attribute names must start with a letter or underscore, and cannot start with 'xml'.")
         }
     }
 
@@ -65,10 +68,8 @@ class Tag(var name: String) {
 
     /**
      * Validates the name of an attribute.
-     *
-     * @param name The name of the attribute to validate.
      */
-    private fun validateAttributeName(name: String) {
+    fun validateAttributeName(name: String) {
         val regex = Regex("^[A-Za-z_][\\w\\-.]*$")
         if (!regex.matches(name)) {
             throw IllegalArgumentException("Invalid attribute name: '$name'. Attribute names must start with a letter or underscore.")

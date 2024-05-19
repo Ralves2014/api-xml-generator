@@ -127,7 +127,6 @@ class Tag(var name: String) {
         this.name = name
     }
 
-
     /**
      * Returns a string representation of the XML document with proper formatting.
      *

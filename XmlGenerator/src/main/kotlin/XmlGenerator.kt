@@ -1,3 +1,4 @@
+import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
@@ -81,8 +82,12 @@ class ComponenteAvaliacao(
 
 class XmlGenerator {
 
-
-
+    /**
+     * Translates an object into an XML `Tag`.
+     *
+     * @param obj The object to be translated into an XML `Tag`.
+     * @return The resulting XML `Tag`.
+     */
     fun translate(obj: Any): Tag {
         val tagName = obj::class.simpleName!!.lowercase()
         val tag = Tag(tagName)
@@ -102,6 +107,13 @@ class XmlGenerator {
         return tag
     }
 
+    /**
+     * Processes a property and adds it to the parent XML tag.
+     *
+     * @param parentTag The parent XML tag to which the property will be added.
+     * @param propName The name of the property.
+     * @param propValue The value of the property.
+     */
     private fun processProperty(parentTag: Tag, propName: String, propValue: Any?) {
         when (propValue) {
             is List<*> -> {
@@ -137,9 +149,105 @@ class XmlGenerator {
         }
     }
 
+    /**
+     * Adapts an XML tag using the specified object's `XmlAdapter` annotation.
+     *
+     * @param obj The object whose `XmlAdapter` annotation will be used for adaptation.
+     * @param tag The XML tag to be adapted.
+     */
     private fun adaptXml(obj: Any, tag: Tag) {
         val adapter = obj::class.findAnnotation<XmlAdapter>()?.value?.createInstance()
         adapter?.adapt(tag)
+    }
+
+    /**
+     * Writes the XML content to a file.
+     *
+     * @param xmlContent The XML content to be written to the file.
+     * @param fileName The name of the file where the XML content will be written.
+     */
+    fun xmlFile(xmlContent: Tag, fileName: String) {
+        val file = File("$fileName.xml")
+        file.writeText(xmlContent.prettyPrint())
+        println("XML file was successfully saved: $fileName.")
+    }
+
+    /**
+     * Adds a global attribute to all tags with a specific name in the XML structure.
+     *
+     * @param xmlContent Xml content where the changes will be applied
+     * @param tagName The name of the tag to which the attribute will be added.
+     * @param attributeName The name of the attribute to be added.
+     * @param value The value of the attribute to be added.
+     * @throws IllegalArgumentException If no tag with the specified name is found in the XML structure.
+     */
+    fun addGlobalAttribute(xmlContent: Tag, tagName: String, attributeName: String, value: String) {
+        var tagFound = false
+
+        xmlContent.accept { tag ->
+            if (tag.name == tagName) {
+                tag.addAttribute(attributeName, value)
+                tagFound = true
+            }
+            true
+        }
+        if (!tagFound) {
+            throw IllegalArgumentException("Tag '$tagName' not found.")
+        }
+    }
+
+    /**
+     * Renames a tag in the XML structure.
+     *
+     * @param xmlContent Xml content where the changes will be applied
+     * @param tagName The name of the tag to be renamed.
+     * @param newTagName The new desired name for the tag.
+     * @throws IllegalArgumentException If no tag with the specified name is found in the XML structure.
+     */
+    fun tagRename(xmlContent: Tag, tagName: String, newTagName: String) {
+        var tagFound = false
+
+        xmlContent.accept { tag ->
+            if (tag.name == tagName) {
+                tag.setTagName(newTagName)
+                tagFound = true
+            }
+            true
+        }
+        if (!tagFound) {
+            throw IllegalArgumentException("Tag '$tagName' not found.")
+        }
+    }
+
+    /**
+     * Renames an attribute in a specific tag in the XML structure.
+     *
+     * @param xmlContent Xml content where the changes will be applied
+     * @param tagName The name of the tag where the attribute is located.
+     * @param attributeName The name of the attribute to be renamed.
+     * @param newAttributeName The new desired name for the attribute.
+     * @throws IllegalArgumentException If the specified tag is not found or if the specified attribute does not exist in the tag.
+     */
+    fun attributeRename(xmlContent: Tag, tagName: String, attributeName: String, newAttributeName: String) {
+        var tagFound = false
+
+        xmlContent.accept { tag ->
+            if (tag.name == tagName) {
+                tagFound = true
+                val value = tag.attributes[attributeName]?.toString()
+                if (value != null) {
+                    tag.attributes.remove(attributeName)
+                    tag.addAttribute(newAttributeName, value)
+                } else {
+                    throw IllegalArgumentException("The attribute '$attributeName' does not exist in the tag '$tagName'.")
+                }
+            }
+            true
+        }
+
+        if (!tagFound) {
+            throw IllegalArgumentException("The tag '$tagName' was not found.")
+        }
     }
 }
 
@@ -161,9 +269,10 @@ fun main() {
     val xml2 = xmlGenerator.translate(c)
     println(xml2.prettyPrint())
 
-    //blindar a tag
-    //    </jd">  <?xml> nao pode acontecer
-    // microx path e para ser implementado?
-    // temos de fazer os testes
-    // dsl interna
+    xmlGenerator.addGlobalAttribute(xml2, "componente", "teste", "aquii")
+
+    println(xml2.prettyPrint())
+
+
+
 }

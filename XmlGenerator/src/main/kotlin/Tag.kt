@@ -1,80 +1,110 @@
 /**
- * Esta classe representa uma entidade(tag) XML.
+ * This class represents an XML tag entity.
  *
- * @property name O nome da tag.
- * @property attributes Um mapa de atributos da tag, onde a chave é o nome do atributo e o valor é o seu valor.
- * @property children Uma lista de filhos da tag.
- * @property text O texto contido dentro da tag.
+ * @property name The name of the tag.
+ * @property attributes A map of the tag's attributes, where the key is the attribute name and the value is its value.
+ * @property children A list of child tags.
+ * @property text The text contained within the tag.
  */
 class Tag(var name: String) {
     val attributes: MutableMap<String, String> = mutableMapOf()
     val children: MutableList<Tag> = mutableListOf()
     var text: StringBuilder = StringBuilder()
 
+    init {
+        validateTagName(name)
+    }
+
     /**
-     * Adiciona um filho à tag.
+     * Validates the name of an XML tag.
      *
-     * @param tag O filho a ser adicionado.
+     * @param name The name of the tag to validate.
+     * @throws IllegalArgumentException if the tag name is invalid. The tag name must start with a letter or underscore, and cannot start with 'xml'.
+     */
+    private fun validateTagName(name: String) {
+        val regex = Regex("^[A-Za-z_][\\w\\-.]*$")
+        if (!regex.matches(name) || name.startsWith("xml", ignoreCase = true)) {
+            throw IllegalArgumentException("Invalid attribute name: '$name'. Attribute names must start with a letter or underscore, and cannot start with 'xml'.")
+        }
+    }
+
+    /**
+     * Adds a child to the tag.
+     *
+     * @param tag The child to be added.
      */
     fun addChild(tag: Tag) {
         children.add(tag)
     }
 
     /**
-     * Remove um filho da tag.
+     * Removes a child from the tag.
      *
-     * @param tag O filho a ser removido.
+     * @param tag The child to be removed.
      */
     fun removeChild(tag: Tag) {
         if (!children.contains(tag)) {
-            throw IllegalArgumentException("A tag introduzida não é filha desta tag.")
+            throw IllegalArgumentException("The introduced tag is not a child of this tag.")
         }
         children.remove(tag)
     }
 
     /**
-     * Adiciona um atributo à tag.
+     * Adds an attribute to the tag.
      *
-     * @param name O nome do atributo.
-     * @param value O valor do atributo.
+     * @param name The name of the attribute.
+     * @param value The value of the attribute.
      */
     fun addAttribute(name: String, value: String) {
         if (this.text.isNotEmpty()) {
-            throw IllegalArgumentException("Não é possível adicionar atributos a uma tag com texto.")
+            throw IllegalArgumentException("Cannot add attributes to a tag with text content.")
         }
+        validateAttributeName(name)
         attributes[name] = value
     }
 
     /**
-     * Remove um atributo da tag.
+     * Validates the name of an attribute.
      *
-     * @param name O nome do atributo que vai ser removido.
+     * @param name The name of the attribute to validate.
+     */
+    private fun validateAttributeName(name: String) {
+        val regex = Regex("^[A-Za-z_][\\w\\-.]*$")
+        if (!regex.matches(name)) {
+            throw IllegalArgumentException("Invalid attribute name: '$name'. Attribute names must start with a letter or underscore.")
+        }
+    }
+
+    /**
+     * Removes an attribute from the tag.
+     *
+     * @param name The name of the attribute to be removed.
      */
     fun removeAttribute(name: String) {
         if (!attributes.containsKey(name)) {
-            throw IllegalArgumentException("O atributo com o nome '$name' não existe nesta tag.")
+            throw IllegalArgumentException("The attribute with name '$name' does not exist in this tag.")
         }
         attributes.remove(name)
     }
 
     /**
-     * Adiciona texto à tag.
+     * Adds text to the tag.
      *
-     * @param str O texto a ser adicionado.
+     * @param str The text to be added.
      */
     fun addText(str: String) {
         if (attributes.isNotEmpty()) {
-            throw IllegalArgumentException("Não é possível adicionar texto a uma tag com atributos.")
+            throw IllegalArgumentException("Cannot add text to a tag with attributes.")
         }
         text.append(str)
     }
 
     /**
-     * Aceita um visitante para percorrer a hierarquia de tags XML.
+     * Accepts a visitor to traverse the hierarchy of XML tags.
      *
-     * @param visitor O visitante aceita uma tag XML como parâmetro
-     * e retorna um valor booleano indicando se a visita deve continuar
-     * nos filhos da tag visitada.
+     * @param visitor The visitor accepts an XML tag as a parameter
+     * and returns a boolean value indicating whether the visit should continue
+     * to the children of the visited tag.
      */
     fun accept(visitor: (Tag) -> Boolean) {
         if (this.children.isEmpty()){
@@ -88,19 +118,19 @@ class Tag(var name: String) {
     }
 
     /**
-     * Define um novo nome para a tag.
+     * Sets a new name for the tag.
      *
-     * @param newname O novo nome a ser atribuído à tag.
+     * @param name The new name to be assigned to the tag.
      */
-    fun setTagname(newname: String) {
-        this.name = newname
+    fun setTagName(name: String) {
+        this.name = name
     }
 
 
     /**
-     * Retorna uma representação em formato de string do documento XML, com formatação adequada.
+     * Returns a string representation of the XML document with proper formatting.
      *
-     * @return Uma string contendo o documento XML formatado.
+     * @return A string containing the formatted XML document.
      */
     fun prettyPrint(): String {
         val str = StringBuilder()
@@ -108,7 +138,7 @@ class Tag(var name: String) {
 
         if (this.children.isNotEmpty()) {
             val indentation = 0
-            childrensIterator(this, str, indentation)
+            childrenIterator(this, str, indentation)
         } else {
             //str.append("<${this.name}></${this.name}>")
             str.append("<${this.name}")
@@ -127,13 +157,13 @@ class Tag(var name: String) {
     }
 
     /**
-     * Itera recursivamente sobre as tags para gerar a representação formatada do documento XML.
+     * Recursively iterates over the tags to generate the formatted representation of the XML document.
      *
-     * @param tag A tag atual sendo processada.
-     * @param str O StringBuilder onde a representação XML está sendo construída.
-     * @param indentation O nível de indentação para a formatação correta.
+     * @param tag The current tag being processed.
+     * @param str The StringBuilder where the XML representation is being built.
+     * @param indentation The indentation level for proper formatting.
      */
-    fun childrensIterator(tag: Tag, str: StringBuilder, indentation: Int) {
+    private fun childrenIterator(tag: Tag, str: StringBuilder, indentation: Int) {
         val indent = " ".repeat(indentation * 4)
         str.append("$indent<${tag.name}")
 
@@ -154,7 +184,7 @@ class Tag(var name: String) {
             }
 
             for (child in tag.children) {
-                childrensIterator(child, str, indentation + 1)
+                childrenIterator(child, str, indentation + 1)
             }
             str.append("$indent</${tag.name}>\n")
         }

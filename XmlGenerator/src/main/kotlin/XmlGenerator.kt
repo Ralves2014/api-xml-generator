@@ -43,7 +43,7 @@ class FUCAdapter : XmlAdaptable {
 class ComponenteAvaliacaoAdapter : XmlAdaptable {
     override fun adapt(tag: Tag) {
         val childrenToRemove = mutableListOf<Tag>()
-        tag.setTagname("componente")
+        tag.setTagName("componente")
 
         tag.children.forEach { childTag ->
             when (childTag.name) {
@@ -80,6 +80,8 @@ class ComponenteAvaliacao(
 )
 
 class XmlGenerator {
+
+
 
     fun translate(obj: Any): Tag {
         val tagName = obj::class.simpleName!!.lowercase()

@@ -134,13 +134,11 @@ class Tag(var name: String) {
      */
     fun prettyPrint(): String {
         val str = StringBuilder()
-        //str.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 
         if (this.children.isNotEmpty()) {
             val indentation = 0
             childrenIterator(this, str, indentation)
         } else {
-            //str.append("<${this.name}></${this.name}>")
             str.append("<${this.name}")
 
             for ((attrName, attrValue) in this.attributes) {
@@ -153,6 +151,7 @@ class Tag(var name: String) {
                 str.append("/>\n")
             }
         }
+        str.deleteCharAt(str.length - 1)
         return str.toString()
     }
 

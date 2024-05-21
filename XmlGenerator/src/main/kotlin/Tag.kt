@@ -190,14 +190,34 @@ class Tag(var name: String) {
     }
 }
 
+
+
+/**
+ * Adds an attribute to the current tag.
+ *
+ * @param name The name of the attribute.
+ * @param value The value of the attribute.
+ */
 fun Tag.attr(name: String, value: String) {
     this.addAttribute(name, value)
 }
 
+/**
+ * Adds text content to the current tag.
+ *
+ * @param content The text content to be added.
+ */
 fun Tag.text(content: String) {
     this.addText(content)
 }
 
+/**
+ * Adds a child tag to the current tag.
+ *
+ * @param name The name of the child tag.
+ * @param init A lambda function to initialize the child tag.
+ * @return The child tag that was added.
+ */
 fun Tag.tag(name: String, init: Tag.() -> Unit): Tag {
     val child = Tag(name)
     child.init()
@@ -205,26 +225,15 @@ fun Tag.tag(name: String, init: Tag.() -> Unit): Tag {
     return child
 }
 
-fun xml(name: String, init: Tag.() -> Unit): Tag {
+/**
+ * Creates a root tag and initializes it using the provided lambda function.
+ *
+ * @param name The name of the root tag.
+ * @param init A lambda function to initialize the root tag.
+ * @return The root tag that was created.
+ */
+fun dictionaryXml(name: String, init: Tag.() -> Unit): Tag {
     val root = Tag(name)
     root.init()
     return root
-}
-
-// Example Usage
-fun main() {
-    val xmlContent = xml("library") {
-        attr("location", "Downtown")
-        tag("book") {
-            attr("title", "Kotlin for Beginners")
-            attr("author", "John Doe")
-        }
-        tag("book") {
-            attr("title", "Advanced Kotlin")
-            attr("author", "Jane Doe")
-        }
-    }
-
-    val generator = XmlGenerator()
-    generator.xmlFile(xmlContent, "library")
 }

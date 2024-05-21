@@ -180,4 +180,80 @@ class TagTest {
             componente4.validateAttributeName("inva@lidAttr")
         }
     }
+
+    @Test
+    fun testDictionaryXml() {
+        val plano = dictionaryXml("plano") {
+            tag("curso") {
+                text("Mestrado em Engenharia Informática")
+            }
+            tag("fuc") {
+                attr("codigo", "M4310")
+                tag("nome") {
+                    text("Programação Avançada")
+                }
+                tag("ects") {
+                    text("6.0")
+                }
+                tag("avaliacao") {
+                    tag("componente") {
+                        attr("nome", "Quizzes")
+                        attr("peso", "20%")
+                    }
+                    tag("componente") {
+                        attr("nome", "Projeto")
+                        attr("peso", "80%")
+                    }
+                }
+            }
+            tag("fuc") {
+                attr("codigo", "03782")
+                tag("nome") {
+                    text("Dissertação")
+                }
+                tag("ects") {
+                    text("42.0")
+                }
+                tag("avaliacao") {
+                    tag("componente") {
+                        attr("nome", "Dissertação")
+                        attr("peso", "60%")
+                    }
+                    tag("componente") {
+                        attr("nome", "Apresentação")
+                        attr("peso", "20%")
+                    }
+                    tag("componente") {
+                        attr("nome", "Discussão")
+                        attr("peso", "20%")
+                    }
+                }
+            }
+        }
+
+        val expectedXml = """
+            <plano>
+                <curso>Mestrado em Engenharia Informática</curso>
+                <fuc codigo="M4310">
+                    <nome>Programação Avançada</nome>
+                    <ects>6.0</ects>
+                    <avaliacao>
+                        <componente nome="Quizzes" peso="20%"/>
+                        <componente nome="Projeto" peso="80%"/>
+                    </avaliacao>
+                </fuc>
+                <fuc codigo="03782">
+                    <nome>Dissertação</nome>
+                    <ects>42.0</ects>
+                    <avaliacao>
+                        <componente nome="Dissertação" peso="60%"/>
+                        <componente nome="Apresentação" peso="20%"/>
+                        <componente nome="Discussão" peso="20%"/>
+                    </avaliacao>
+                </fuc>
+            </plano>
+        """.trimIndent()
+
+        assertEquals(expectedXml, plano.prettyPrint().trim())
+    }
 }

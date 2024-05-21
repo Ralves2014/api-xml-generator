@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<library location="Downtown">
-    <book title="Kotlin for Beginners" author="John Doe"/>
-    <book title="Advanced Kotlin" author="Jane Doe"/>
-</library>

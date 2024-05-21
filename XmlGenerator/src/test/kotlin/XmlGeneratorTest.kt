@@ -5,59 +5,35 @@ import java.io.File
 
 @XmlAdapter(FUCAdapter::class)
 class FUC(
+    @XmlAttribute
     val codigo: String,
     val nome: String,
     val ects: Double,
+    @Exclude
+    val observacoes: String,
+    @XmlElementName("componente")
     val avaliacao: List<ComponenteAvaliacao>
 )
 
 @XmlAdapter(ComponenteAvaliacaoAdapter::class)
+@XmlElementName("componente")
 class ComponenteAvaliacao(
+    @XmlAttribute
     val nome: String,
+    @XmlAttribute
     @XmlString(AddPercentage::class)
     val peso: Int
 )
 
 class FUCAdapter : XmlAdaptable {
     override fun adapt(tag: Tag) {
-        tag.children.find { it.name == "codigo" }?.let {
-            tag.attributes["codigo"] = it.text.toString()
-            tag.children.remove(it)
-        }
 
-        val aTag = tag.children.find { it.name == "avaliacao" }
-        if (aTag != null) {
-            aTag.children.forEach { componentTag ->
-                tag.addChild(componentTag)
-            }
-            tag.children.remove(aTag)
-        }
-
-        //val ectsIndex = tag.children.indexOfFirst { it.name == "ects" }
     }
 }
 
 class ComponenteAvaliacaoAdapter : XmlAdaptable {
     override fun adapt(tag: Tag) {
-        val childrenToRemove = mutableListOf<Tag>()
-        tag.setTagName("componente")
 
-        tag.children.forEach { childTag ->
-            when (childTag.name) {
-                "peso" -> {
-                    val pesoValue = childTag.text.toString().toInt()
-                    val transformedPeso = AddPercentage().transform(pesoValue)
-                    tag.addAttribute("peso", transformedPeso)
-                    childrenToRemove.add(childTag)
-                }
-                "nome" -> {
-                    tag.addAttribute("nome", childTag.text.toString())
-                    childrenToRemove.add(childTag)
-                }
-            }
-        }
-
-        childrenToRemove.forEach { tag.removeChild(it) }
     }
 }
 
@@ -69,6 +45,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -91,6 +68,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -116,6 +94,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -146,6 +125,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -177,6 +157,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -211,6 +192,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -243,6 +225,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -277,6 +260,7 @@ class XmlGeneratorTest {
             "M4310",
             "Programação Avançada",
             6.0,
+            "la la...",
             listOf(
                 ComponenteAvaliacao("Quizzes", 20),
                 ComponenteAvaliacao("Projeto", 80)
@@ -301,6 +285,7 @@ fun main() {
         "M4310",
         "Programação Avançada",
         6.0,
+        "la la...",
         listOf(
             ComponenteAvaliacao("Quizzes", 20),
             ComponenteAvaliacao("Projeto", 80)
@@ -309,5 +294,10 @@ fun main() {
     val xml = xmlGenerator.translate(fuc)
     println(xml.prettyPrint())
     xmlGenerator.xmlFile(xml,"test")
+
+    val c = ComponenteAvaliacao("Quizzes", 20)
+
+    val xml2 = xmlGenerator.translate(c)
+    println(xml2.prettyPrint())
 
 }

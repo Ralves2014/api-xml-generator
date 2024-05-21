@@ -19,6 +19,18 @@ annotation class XmlString(val value: KClass<out StringTransformer>)
 @Target(AnnotationTarget.CLASS)
 annotation class XmlAdapter(val value: KClass<out XmlAdaptable>)
 
+
+@Target(AnnotationTarget.PROPERTY)
+annotation class XmlAttribute
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+annotation class XmlElementName(
+    val value: String
+)
+
+@Target(AnnotationTarget.PROPERTY)
+annotation class Exclude
+
 /**
  * Interface for classes that adapt an XML tag.
  */
@@ -51,7 +63,7 @@ class XmlGenerator {
      * @return The resulting XML `Tag`.
      */
     fun translate(obj: Any): Tag {
-        val tagName = obj::class.simpleName!!.lowercase()
+        val tagName = obj::class.findAnnotation<XmlElementName>()?.value ?: obj::class.simpleName!!.lowercase()
         val tag = Tag(tagName)
 
         val propertyOrder = obj::class.primaryConstructor?.parameters?.map { parameter ->
@@ -61,7 +73,7 @@ class XmlGenerator {
 
         propertyOrder.forEach { (propName, propValue) ->
             if (propName != null) {
-                processProperty(tag, propName, propValue)
+                processProperty(tag, obj, propName, propValue)
             }
         }
 
@@ -76,37 +88,59 @@ class XmlGenerator {
      * @param propName The name of the property.
      * @param propValue The value of the property.
      */
-    private fun processProperty(parentTag: Tag, propName: String, propValue: Any?) {
-        when (propValue) {
-            is List<*> -> {
-                propValue.forEach { listItem ->
-                    if (listItem != null) {
-                        val itemTag = Tag(listItem::class.simpleName.toString().lowercase())
-
-                        listItem::class.declaredMemberProperties.forEach { itemProp ->
-                            itemProp.isAccessible = true
-                            val itemName = itemProp.name
-                            val itemValue = itemProp.getter.call(listItem)
-
-                            val childTag = Tag(itemName)
-
-                            if (itemValue != null) {
-                                childTag.text.append(itemValue.toString())
-                            }
-
-                            processProperty(itemTag, itemName, itemValue)
-                            adaptXml(listItem,itemTag)
-                        }
-                        parentTag.addChild(itemTag)
+    private fun processProperty(parentTag: Tag, obj: Any, propName: String, propValue: Any?) {
+        val property = obj::class.declaredMemberProperties.find { it.name == propName }
+        if (property != null && property.findAnnotation<Exclude>() == null) {
+            when {
+                property.findAnnotation<XmlAttribute>() != null -> {
+                    if (propValue != null) {
+                        val stringTransformer = property.findAnnotation<XmlString>()?.value?.createInstance()
+                        val transformedValue = stringTransformer?.transform(propValue) ?: propValue.toString()
+                        parentTag.addAttribute(propName, transformedValue)
                     }
                 }
-            }
-            else -> {
-                val childTag = Tag(propName)
-                if (propValue != null) {
-                    childTag.text.append(propValue.toString())
+                property.findAnnotation<XmlElementName>() != null -> {
+                    val elementName = property.findAnnotation<XmlElementName>()!!.value
+                    if (propValue is List<*>) {
+                        propValue.forEach { listItem ->
+                            if (listItem != null) {
+                                val itemTag = Tag(elementName)
+                                listItem::class.declaredMemberProperties.forEach { itemProp ->
+                                    itemProp.isAccessible = true
+                                    val itemName = itemProp.name
+                                    var itemValue = itemProp.getter.call(listItem)
+
+                                    if (itemValue != null) {
+                                        val stringTransformer = itemProp.findAnnotation<XmlString>()?.value?.createInstance()
+                                        if (stringTransformer != null) {
+                                            itemValue = stringTransformer.transform(itemValue)
+                                        }
+                                    }
+
+                                    if (itemProp.findAnnotation<XmlAttribute>() != null) {
+                                        if (itemValue != null) {
+                                            itemTag.addAttribute(itemName, itemValue.toString())
+                                        }
+                                    } else {
+                                        val childTag = Tag(itemName)
+                                        if (itemValue != null) {
+                                            childTag.addText(itemValue.toString())
+                                        }
+                                        itemTag.addChild(childTag)
+                                    }
+                                }
+                                parentTag.addChild(itemTag)
+                            }
+                        }
+                    }
                 }
-                parentTag.addChild(childTag)
+                else -> {
+                    val childTag = Tag(propName)
+                    if (propValue != null) {
+                        childTag.addText(propValue.toString())
+                    }
+                    parentTag.addChild(childTag)
+                }
             }
         }
     }

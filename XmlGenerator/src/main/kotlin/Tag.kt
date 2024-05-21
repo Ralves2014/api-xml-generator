@@ -189,3 +189,42 @@ class Tag(var name: String) {
         }
     }
 }
+
+fun Tag.attr(name: String, value: String) {
+    this.addAttribute(name, value)
+}
+
+fun Tag.text(content: String) {
+    this.addText(content)
+}
+
+fun Tag.tag(name: String, init: Tag.() -> Unit): Tag {
+    val child = Tag(name)
+    child.init()
+    this.addChild(child)
+    return child
+}
+
+fun xml(name: String, init: Tag.() -> Unit): Tag {
+    val root = Tag(name)
+    root.init()
+    return root
+}
+
+// Example Usage
+fun main() {
+    val xmlContent = xml("library") {
+        attr("location", "Downtown")
+        tag("book") {
+            attr("title", "Kotlin for Beginners")
+            attr("author", "John Doe")
+        }
+        tag("book") {
+            attr("title", "Advanced Kotlin")
+            attr("author", "Jane Doe")
+        }
+    }
+
+    val generator = XmlGenerator()
+    generator.xmlFile(xmlContent, "library")
+}

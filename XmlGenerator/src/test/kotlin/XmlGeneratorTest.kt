@@ -1,4 +1,7 @@
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.io.File
 
 @XmlAdapter(FUCAdapter::class)
 class FUC(
@@ -27,9 +30,10 @@ class FUCAdapter : XmlAdaptable {
             aTag.children.forEach { componentTag ->
                 tag.addChild(componentTag)
             }
-
             tag.children.remove(aTag)
         }
+
+        //val ectsIndex = tag.children.indexOfFirst { it.name == "ects" }
     }
 }
 
@@ -71,18 +75,223 @@ class XmlGeneratorTest {
             )
         )
         val xml = xmlGenerator.translate(fuc)
-        println(xml.prettyPrint())
-        //xmlGenerator.xmlFile(xml,"test")
+        val content = xml.prettyPrint()
 
-        val m = xmlGenerator.microXPath(xml, "fuc/componente")
+        // temos de alterar a ordem
+        val example = File("example.xml")
+        val contentOfExample = example.readText()
 
-        val c = ComponenteAvaliacao("Quizzes", 20)
-        val xml2 = xmlGenerator.translate(c)
-        println(xml2.prettyPrint())
+        assertEquals(contentOfExample, content)
+    }
 
-        xmlGenerator.addGlobalAttribute(xml2, "componente", "teste", "aquii")
+    @Test
+    fun testXmlFile() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        xmlGenerator.xmlFile(xml,"test")
 
-        println(xml2.prettyPrint())
+        val ouput = File("test.xml")
+        val expectedOutput = """
+            
+        """.trimIndent()
+
+        // so falta alterar a ordem
+
+        assertEquals(expectedOutput,ouput.readText())
+    }
+
+    @Test
+    fun testAddGlobalAttribute() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        xmlGenerator.addGlobalAttribute(xml,"componente","avaliacao", "presencial")
+
+        xml.accept { tag ->
+            for (c in tag.children) {
+                if (c.name == "componente") {
+                    assertEquals(3, c.attributes.size)
+                    assertTrue(c.attributes.containsKey("avaliacao"))
+                }
+            }
+            true
+        }
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.addGlobalAttribute(xml,"componete", "avaliacao", "presencial")
+        }
+    }
+
+    @Test
+    fun testTagRename() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        xmlGenerator.tagRename(xml,"nome","uc")
+
+        var tagFound = false
+        xml.accept { tag ->
+            for (c in tag.children) {
+                if (c.name == "uc") {
+                    tagFound = true
+                }
+            }
+            true
+        }
+        assertTrue(tagFound)
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.tagRename(xml,"fuc7", "uc")
+        }
+    }
+
+    @Test
+    fun testAttributeRename() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        xmlGenerator.attributeRename(xml,"componente", "nome", "metodo")
+
+        xml.accept { tag ->
+            for (c in tag.children) {
+                if (c.name == "componente") {
+                    assertTrue(c.attributes.containsKey("metodo"))
+                    assertFalse(c.attributes.containsKey("nome"))
+                }
+            }
+            true
+        }
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.attributeRename(xml,"componete", "nome", "metodo")
+        }
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.attributeRename(xml,"componente", "nom", "metodo")
+        }
+    }
+
+    @Test
+    fun testRemoveTagDocument() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        xmlGenerator.removeTagDocument(xml,"nome")
+
+        var tagRemoved = true
+        xml.accept { tag ->
+            for (c in tag.children) {
+                if (c.name == "nome") {
+                    tagRemoved = false
+                }
+            }
+            true
+        }
+
+        assertTrue(tagRemoved)
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.removeTagDocument(xml,"componete")
+        }
+    }
+
+    @Test
+    fun testRemoveAttributeGlobal() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        xmlGenerator.removeAttributeGlobal(xml,"componente","nome")
+
+        xml.accept { tag ->
+            for (c in tag.children) {
+                if (c.name == "componente") {
+                    assertFalse(c.attributes.containsKey("nome"))
+                    assertTrue(c.attributes.containsKey("peso"))
+                }
+            }
+            true
+        }
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.removeAttributeGlobal(xml,"componete", "nome")
+        }
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.removeAttributeGlobal(xml,"componente", "nom")
+        }
+    }
+
+    @Test
+    fun testMicroXPath() {
+        val xmlGenerator = XmlGenerator()
+        val fuc = FUC(
+            "M4310",
+            "Programação Avançada",
+            6.0,
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+        val xml = xmlGenerator.translate(fuc)
+        val lt = xmlGenerator.microXPath(xml, "fuc/componente")
+
+        lt.forEach { t ->
+            assert(t.name.toString() == "componente")
+        }
+
+        assertThrows<IllegalArgumentException> {
+            xmlGenerator.microXPath(xml, "fuc/avaliacao/componente")
+        }
     }
 }
 
@@ -100,15 +309,5 @@ fun main() {
     val xml = xmlGenerator.translate(fuc)
     println(xml.prettyPrint())
     xmlGenerator.xmlFile(xml,"test")
-
-    val m = xmlGenerator.microXPath(xml, "fuc/componente")
-
-    val c = ComponenteAvaliacao("Quizzes", 20)
-    val xml2 = xmlGenerator.translate(c)
-    println(xml2.prettyPrint())
-
-    xmlGenerator.addGlobalAttribute(xml2, "componente", "teste", "aquii")
-
-    println(xml2.prettyPrint())
 
 }

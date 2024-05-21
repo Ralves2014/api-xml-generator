@@ -19,15 +19,27 @@ annotation class XmlString(val value: KClass<out StringTransformer>)
 @Target(AnnotationTarget.CLASS)
 annotation class XmlAdapter(val value: KClass<out XmlAdaptable>)
 
-
+/**
+ * Annotation used to mark a property as an XML attribute.
+ *
+ * @property XmlAttribute Can only be applied to properties.
+ */
 @Target(AnnotationTarget.PROPERTY)
 annotation class XmlAttribute
 
+/**
+ * Annotation used to specify a custom XML element name for a class or property.
+ *
+ * @property value The custom name to be used for the XML element.
+ */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 annotation class XmlElementName(
     val value: String
 )
 
+/**
+ * Annotation used to exclude a property from XML serialization.
+ */
 @Target(AnnotationTarget.PROPERTY)
 annotation class Exclude
 
@@ -54,6 +66,11 @@ class AddPercentage : StringTransformer {
     }
 }
 
+
+
+/**
+ * Class for generating and manipulating XML structures.
+ */
 class XmlGenerator {
 
     /**

@@ -15,7 +15,6 @@ class FUC(
     val avaliacao: List<ComponenteAvaliacao>
 )
 
-@XmlAdapter(ComponenteAvaliacaoAdapter::class)
 @XmlElementName("componente")
 class ComponenteAvaliacao(
     @XmlAttribute
@@ -26,14 +25,27 @@ class ComponenteAvaliacao(
 )
 
 class FUCAdapter : XmlAdaptable {
-    override fun adapt(tag: Tag) {
+    override fun adapt(tagFuc: Tag) {
+        val orderedAttributes = linkedMapOf<String, String>()
 
-    }
-}
+        tagFuc.attributes["codigo"]?.let { orderedAttributes["codigo"] = it }
+        tagFuc.attributes["ects"]?.let { orderedAttributes["ects"] = it }
+        tagFuc.attributes["nome"]?.let { orderedAttributes["nome"] = it }
 
-class ComponenteAvaliacaoAdapter : XmlAdaptable {
-    override fun adapt(tag: Tag) {
+        tagFuc.attributes.clear()
+        tagFuc.attributes.putAll(orderedAttributes)
 
+        val orderedChildren = mutableListOf<Tag>()
+
+        tagFuc.children.find { it.name == "ects" }?.let { orderedChildren.add(it) }
+        tagFuc.children.find { it.name == "nome" }?.let { orderedChildren.add(it) }
+
+        tagFuc.children.filterNot { it.name == "ects" || it.name == "nome" }.forEach {
+            orderedChildren.add(it)
+        }
+
+        tagFuc.children.clear()
+        tagFuc.children.addAll(orderedChildren)
     }
 }
 
@@ -54,7 +66,6 @@ class XmlGeneratorTest {
         val xml = xmlGenerator.translate(fuc)
         val content = xml.prettyPrint()
 
-        // temos de alterar a ordem
         val example = File("example.xml")
         val contentOfExample = example.readText()
 
@@ -79,10 +90,14 @@ class XmlGeneratorTest {
 
         val ouput = File("test.xml")
         val expectedOutput = """
-            
+            <?xml version="1.0" encoding="UTF-8"?>
+            <fuc codigo="M4310">
+                <ects>6.0</ects>
+                <nome>Programação Avançada</nome>
+                <componente nome="Quizzes" peso="20%"/>
+                <componente nome="Projeto" peso="80%"/>
+            </fuc>
         """.trimIndent()
-
-        // so falta alterar a ordem
 
         assertEquals(expectedOutput,ouput.readText())
     }
@@ -277,27 +292,4 @@ class XmlGeneratorTest {
             xmlGenerator.microXPath(xml, "fuc/avaliacao/componente")
         }
     }
-}
-
-fun main() {
-    val xmlGenerator = XmlGenerator()
-    val fuc = FUC(
-        "M4310",
-        "Programação Avançada",
-        6.0,
-        "la la...",
-        listOf(
-            ComponenteAvaliacao("Quizzes", 20),
-            ComponenteAvaliacao("Projeto", 80)
-        )
-    )
-    val xml = xmlGenerator.translate(fuc)
-    println(xml.prettyPrint())
-    xmlGenerator.xmlFile(xml,"test")
-
-    val c = ComponenteAvaliacao("Quizzes", 20)
-
-    val xml2 = xmlGenerator.translate(c)
-    println(xml2.prettyPrint())
-
 }

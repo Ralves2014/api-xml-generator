@@ -51,14 +51,14 @@ interface XmlAdaptable {
 }
 
 /**
- * Interface for classes that transform an integer into a string.
+ * Interface that converts a property of a class into string format
  */
 interface StringTransformer {
     fun transform(input: Any): String
 }
 
 /**
- * Implementation of `StringTransformer` that adds a percentage symbol to the integer.
+ * Implementation of StringTransformer that adds a percentage symbol to a property
  */
 class AddPercentage : StringTransformer {
     override fun transform(input: Any): String {

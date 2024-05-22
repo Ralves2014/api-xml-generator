@@ -23,10 +23,10 @@ A partir da classe **XmlGenerator** é possível utilizar os seguintes métodos:
 | microXPath(xmlContent: Tag, xpath: String): List<Tag> | Realiza uma busca XPath simplificada numa estrutura XML |
 
 ## Exemplo de Uso
-### A partir de Objetos
+### A partir de Objetos:
 
 
-Neste exemplo, vamos detalhar todos os passos para gerar e escrever um ficheiro XML:
+Neste exemplo, vamos detalhar todos os passos para gerar um ficheiro XML.
 1. Definir uma classe que representa o conteúdo XML pretendido:
 ```kotlin
 class FUC(
@@ -65,7 +65,7 @@ class ComponenteAvaliacao(
     val peso: Int
 )
 ```
-3. Utilizar a anotação @XmlAdapter para adaptar a ordem dos atributos XML:
+3. Utilizar a anotação @XmlAdapter para adaptar a ordem dos atributos:
 ```kotlin
 class FUCAdapter : XmlAdaptable {
     override fun adapt(tagFuc: Tag) {
@@ -118,6 +118,8 @@ xmlGenerator.xmlFile(xml,"test")
 ### DSL Interna
 
 ```kotlin
+val xmlGenerator = XmlGenerator()
+
 val xml = dictionaryXml("fuc") {
     attr("codigo", "M4310")
     
@@ -139,6 +141,8 @@ val xml = dictionaryXml("fuc") {
         attr("peso", "80%")
     }
 }
+
+xmlGenerator.xmlFile(xml,"test")
 ```
 #### Output
 O conteúdo do ficheiro `test.xml`:
@@ -152,3 +156,6 @@ O conteúdo do ficheiro `test.xml`:
 </fuc>
 ```
 ## Anotações
+
+## Licença
+Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para mais detalhes.

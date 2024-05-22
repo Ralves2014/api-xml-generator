@@ -157,6 +157,16 @@ O conteúdo do ficheiro `test.xml`:
     <componente nome="Projeto" peso="80%"/>
 </fuc>
 ```
-## Anotações
+## Anotações & Interfaces
 
+| Anotação/Interface | Descrição |
+| --- | --- |
+| `@XmlAttribute`| Marca uma propriedade da classe como um atributo da mesma  |
+| `@XmlElementName` | Especifica um nome personalizado para uma classe ou propriedade |
+| `@Exclude` | Exclui uma propriedade da serialização da classe |
+| `@XmlString` | Especifica uma classe que vai ser sofrer transformações |
+| `@XmlAdapter`| Especifica uma classe que vai ser adaptada |
+| `XmlAdaptable` | Interface para classes que adaptam uma entidade XML |
+| `StringTransformer` | Interface que converte uma propriedade de uma classe em formato string |
+| `AddPercentage` | Implementação de `StringTransformer` que adiciona um símbolo de percentagem a uma propriedade |
 

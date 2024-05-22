@@ -1,18 +1,25 @@
-# Biblioteca XmlGenerator
+# XmlGenerator
 
 ## O que é o XmlGenerator?
-O **XmlGenerator** é uma biblioteca desenvolvida em Kotlin que permite a geração e manipulação de XML. Desta forma, o objetivo desta biblioteca é facilitar a criação de documentos XML estruturados, ou seja, a partir da mesma é possível adicionar, remover e manipular entidades/*tags* e atributos.
-
-## Funcionalidades
-- Geração e Manipulação de *Tags* XML;
-- Criação de ficheiros XML;
-- Adicionar atributos globalmente no documento;
-- Renomeação de entidades globalmente no documento;
-- Renomeação de atributos globalmente no documento;
-- Remoção de entidades globalmente no documento;
-- Remoçao de atributos globalmente ao documento;
-- Recolha de fragmentos de XML a partir de um *XPath* simplificado;
-- DSL Interna em Kotlin para criar estruturas XML de forma intuitiva.
+**XmlGenerator** é uma biblioteca desenvolvida em Kotlin que permite a geração e manipulação de documentos XML de maneira simples e eficiente. O principal objetivo desta biblioteca é facilitar a criação e edição de documentos XML estruturados, proporcionando uma API intuitiva e poderosa para adicionar, remover e manipular entidades e atributos.
 
 ## Como funciona?
-Esta biblioteca funciona a partir de objetos, com base na estrutura das respectivas classes. Assim 
+A biblioteca possui duas classes: **XmlGenerator** e **Tag**.
+- **XmlGenerator**: É a classe principal, responsável pela tradução de objetos em estruturas XML e pela sua manipulação;
+- **Tag**: Classe de suporte que representa uma entidade XML. Com a classe Tag, é possível adicionar, remover e manipular atributos, texto e tags filhas, permitindo a construção e modificação detalhada de documentos XML.
+
+## Métodos da Classe XmlGenerator
+A partir da classe **XmlGenerator** é possível utilizar os seguintes métodos:
+
+| Método | Descrição |
+|---|---|
+| translate(obj: Any): Tag | Traduz um objeto numa entidade XML (Tag) |
+| xmlFile(xmlContent: Tag, fileName: String) | Escrita do conteúdo XML traduzido para um ficheiro com um nome definido pelo utilizador |
+| addGlobalAttribute(xmlContent: Tag, tagName: String, attributeName: String, value: String) | Adiciona um atributo global a todas as entidades com um nome específico na estrutura XML |
+| tagRename(xmlContent: Tag, tagName: String, newTagName: String) | Renomeia uma entidade na estrutura XML |
+| attributeRename(xmlContent: Tag, tagName: String, attributeName: String, newAttributeName: String) | Renomeia um atributo numa entidade específica na estrutura XML |
+| removeTagDocument(xmlContent: Tag, tagName: String) | Remove todas as ocorrências de uma entidade específica bem como os seus descendentes da estrutura XML |
+| removeAttributeGlobal(xmlContent: Tag, tagName: String, attributeName: String) | Remove um atributo de todas as ocorrências de uma entidade específica na estrutura XML |
+| microXPath(xmlContent: Tag, xpath: String): List<Tag> | Realiza uma busca XPath simplificada numa estrutura XML |
+
+## Anotações

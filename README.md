@@ -158,4 +158,4 @@ O conteúdo do ficheiro `test.xml`:
 ## Anotações
 
 ## Licença
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo LICENSE para mais detalhes.
+Este projeto está licenciado sob a Licença GPL-3.0 license.

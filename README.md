@@ -1,4 +1,6 @@
 # XmlGenerator
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 
 ## O que é o XmlGenerator?
 **XmlGenerator** é uma biblioteca desenvolvida em Kotlin que permite a geração e manipulação de documentos XML de maneira simples e eficiente. O principal objetivo desta biblioteca é facilitar a criação e edição de documentos XML estruturados, proporcionando uma API intuitiva e poderosa para adicionar, remover e manipular entidades e atributos.
@@ -157,5 +159,4 @@ O conteúdo do ficheiro `test.xml`:
 ```
 ## Anotações
 
-## Licença
-Este projeto está licenciado sob a Licença GPL-3.0 license.
+

@@ -65,7 +65,7 @@ class ComponenteAvaliacao(
     val peso: Int
 )
 ```
-3. Utilizar a anotação @XmlAdapter para adaptar a ordem dos atributos:
+3. Utilizar a anotação `@XmlAdapter` para adaptar a ordem dos atributos:
 ```kotlin
 class FUCAdapter : XmlAdaptable {
     override fun adapt(tagFuc: Tag) {
@@ -92,7 +92,7 @@ class FUCAdapter : XmlAdaptable {
     }
 }
 ```
-4. Inicializar a classe XmlGenerator e a classe FUC:
+4. Inicializar a classe **XmlGenerator** e a classe **FUC**:
 ```kotlin
 val xmlGenerator = XmlGenerator()
         val fuc = FUC(
@@ -110,13 +110,13 @@ val xmlGenerator = XmlGenerator()
 ```kotlin
 val xml = xmlGenerator.translate(fuc)
 ```
-7. Utilizar um método da classe XmlGenerator para gerar um ficheiro:
+7. Utilizar um método da classe **XmlGenerator** para gerar um ficheiro:
 ```kotlin
 xmlGenerator.xmlFile(xml,"test")
 ```
 
 ### DSL Interna
-
+De forma a facilitar a instanciação de modelos XML, foi desenvolvida uma DSL Interna em **Kotlin**.
 ```kotlin
 val xmlGenerator = XmlGenerator()
 

@@ -15,14 +15,14 @@ A partir da classe **XmlGenerator** é possível utilizar os seguintes métodos:
 
 | Método | Descrição |
 |---|---|
-| translate(obj: Any): Tag | Traduz um objeto numa entidade XML (Tag) |
-| xmlFile(xmlContent: Tag, fileName: String) | Escrita do conteúdo XML traduzido para um ficheiro com um nome definido pelo utilizador |
-| addGlobalAttribute(xmlContent: Tag, tagName: String, attributeName: String, value: String) | Adiciona um atributo global a todas as entidades com um nome específico na estrutura XML |
-| tagRename(xmlContent: Tag, tagName: String, newTagName: String) | Renomeia uma entidade na estrutura XML |
-| attributeRename(xmlContent: Tag, tagName: String, attributeName: String, newAttributeName: String) | Renomeia um atributo numa entidade específica na estrutura XML |
-| removeTagDocument(xmlContent: Tag, tagName: String) | Remove todas as ocorrências de uma entidade específica bem como os seus descendentes da estrutura XML |
-| removeAttributeGlobal(xmlContent: Tag, tagName: String, attributeName: String) | Remove um atributo de todas as ocorrências de uma entidade específica na estrutura XML |
-| microXPath(xmlContent: Tag, xpath: String): List<Tag> | Realiza uma busca XPath simplificada numa estrutura XML |
+| `translate(obj: Any): Tag` | Traduz um objeto numa entidade XML (Tag) |
+| `xmlFile(xmlContent: Tag, fileName: String)` | Escrita do conteúdo XML traduzido para um ficheiro com um nome definido pelo utilizador |
+| `addGlobalAttribute(xmlContent: Tag, tagName: String, attributeName: String, value: String)` | Adiciona um atributo global a todas as entidades com um nome específico na estrutura XML |
+| `tagRename(xmlContent: Tag, tagName: String, newTagName: String)` | Renomeia uma entidade na estrutura XML |
+| `attributeRename(xmlContent: Tag, tagName: String, attributeName: String, newAttributeName: String)` | Renomeia um atributo numa entidade específica na estrutura XML |
+| `removeTagDocument(xmlContent: Tag, tagName: String)` | Remove todas as ocorrências de uma entidade específica bem como os seus descendentes da estrutura XML |
+| `removeAttributeGlobal(xmlContent: Tag, tagName: String, attributeName: String)` | Remove um atributo de todas as ocorrências de uma entidade específica na estrutura XML |
+| `microXPath(xmlContent: Tag, xpath: String): List<Tag>` | Realiza uma busca XPath simplificada numa estrutura XML |
 
 ## Exemplo de Uso
 ### A partir de Objetos:
